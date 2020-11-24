@@ -2,6 +2,11 @@
 
 Repo under construction.
 
-Will contain:
-- helm chart that can be applied to a k8 cluster to bring up an airflow scheduler that can be used for running DAGs. DAGs, that use the kubernetes operators.
-- scripts for different cloud providers that will create a cluster that the chart can be applied to. These scripts should be used for testing and development. Terraform should be used in production.
+Airflow stable chart was added:
+```
+helm repo add airflow-stable https://airflow-helm.github.io/charts
+helm repo update
+helm pull airflow-stable/airflow -d airflow-stable --untar
+```
+
+Current version of chart: airflow-7.14.3
