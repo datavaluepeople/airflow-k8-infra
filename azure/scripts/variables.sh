@@ -20,3 +20,8 @@ DBNAME="pgairflow$SUFFIX"
 DBADMINUSER=pgairflowadmin
 DBAIRFLOWDB=airflowcluster1
 DBAIRFLOWDBUSER=airflowcluster1
+
+# storage
+STORAGEACCOUNTNAME="dvpairflowstorage$SUFFIX"
+DAGSHARE="dvpairflowstoragedags$SUFFIX"
+LOGSHARE="dvpairflowstoragelogs$SUFFIX"
