@@ -55,3 +55,14 @@ Use the files in `k8s_resources_example` as a template.
 - copy the folder: `cp -r azure/k8s_resources_example azure/k8s_resources` (azure/k8s_resources/ is ignored)
 - file our the config files by hand
 - apply the config to the cluster: `kubectl apply -f azure/k8s_resources`. !! Needs to be run twice as namespace not found on first pass !!
+
+## Run the helm chart
+Be aware that the output of the helm install and update is not correct. See above for the correct commands.
+```
+. ./azure/scripts/variables.sh
+
+helm install --namespace "airflow-cluster1" -f azure/custom-values.yaml $CLUSTERNAME ./airflow-stable/airflow
+```
+
+If a change is made to the `custom-values.yaml` then update with:
+`helm upgrade --namespace "airflow-cluster1" -f azure/custom-values.yaml $CLUSTERNAME ./airflow-stable/airflow`
