@@ -66,3 +66,13 @@ helm install --namespace "airflow-cluster1" -f azure/custom-values.yaml $CLUSTER
 
 If a change is made to the `custom-values.yaml` then update with:
 `helm upgrade --namespace "airflow-cluster1" -f azure/custom-values.yaml $CLUSTERNAME ./airflow-stable/airflow`
+
+## References:
+https://godatadriven.com/blog/deploying-apache-airflow-on-azure-kubernetes-service/
+https://docs.microsoft.com/en-us/azure/aks/concepts-storage
+https://github.com/airflow-helm/charts/blob/b721834f7f526fe5132ded39a027afffafa51b67/charts/airflow/README.md
+
+## TODO
+Use the service broker to initial the db. This is a great solution but in beta:
+https://svc-cat.io/
+https://azure.microsoft.com/en-us/resources/videos/postg-osba-vid/
