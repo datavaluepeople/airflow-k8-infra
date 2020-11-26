@@ -10,6 +10,7 @@ RG="airflowk8testing$SUFFIX"
 LOCATION=uksouth
 # max nods on the free tier
 NODECOUNT=2
+NAMESPACE=airflow-cluster1
 
 # Registry
 CONTAINERREGISTRY=dvpairflowregistry
@@ -28,3 +29,10 @@ LOGSHARE="dvpairflowstoragelogs$SUFFIX"
 
 # IP
 AIRFLOWWEBIPNAME=airflowStaticIP
+
+# airflow admin user
+AIRFLOWWEBUSERNAME=dvpadmin
+AIRFLOWWEBUSEREMAIL=admin@datavaluepeople.com
+AIRFLOWWEBUSERFN=dvp
+AIRFLOWWEBUSERLN=admin
+# export AIRFLOWWEBUSERPASS=<pass>

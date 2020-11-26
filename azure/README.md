@@ -21,10 +21,12 @@ Firstly set by password variables hand in the bash session:
 export DBADMINPASS=<pass>
 export IPADDRESS=<your current id>
 export DBAIRFLOWPASS=<pass>
+export AIRFLOWWEBUSERPASS=<pass>
 ```
 DBADMINPASS: is the password for the postgres user
 IPADDRESS: the ip address that will be added to the firewall so you can access the postgres from your local
 DBAIRFLOWPASS: the password for the user that airflow will use to connect to the DB.
+AIRFLOWWEBUSERPASS: password for the dvpadmin user in the airflow UI.
 
 Change `variable.sh` as needed.
 
@@ -49,6 +51,9 @@ You can then apply the secrets and configurations in for the cluster. See "Initi
 You can then apply the helm chart to get the airflow up and running. See "Run the helm chart" section.
 
 Check all the pods are running: `kubectl get pods --namespace airflow-cluster1`
+
+Once the airflow is up and running you can create the dvpadmin user: `./azure/scripts/airflow-user-init.sh`.
+You will then be able to log in with the set password ($AIRFLOWWEBUSERPASS) and the user `dvpadmin`.
 
 To delete: `./azure/scripts/cleanup.sh`
 
