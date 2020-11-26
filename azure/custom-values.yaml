@@ -83,9 +83,14 @@ web:
   replicas: 1
 
   ## configs for the Service of the web Pods
-  ## TODO: make this use a loadBalancer
   service:
-    type: NodePort
+    type: LoadBalancer
+    ## If you have created a public ip using scripts then add ip here.
+    ## Otherwise an temporary IP will just be created.
+    loadBalancerIP: ""
+    ## Uncomment the annotation if you want to use a static IP
+    #annotations:
+      #service.beta.kubernetes.io/azure-load-balancer-resource-group: "airflowk8testing103"
 
   ## extra pip packages to install in the web container
   ##

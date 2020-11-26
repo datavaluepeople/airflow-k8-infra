@@ -25,3 +25,6 @@ DBAIRFLOWDBUSER=airflowcluster1
 STORAGEACCOUNTNAME="dvpairflowstorage$SUFFIX"
 DAGSHARE="dvpairflowstoragedags$SUFFIX"
 LOGSHARE="dvpairflowstoragelogs$SUFFIX"
+
+# IP
+AIRFLOWWEBIPNAME=airflowStaticIP

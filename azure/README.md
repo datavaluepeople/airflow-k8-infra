@@ -39,6 +39,9 @@ You will need to allow the cluster access to the postgres via the portal.
 This is done by "Allow access to Azure services" to "Yes" for the postgres server. To find this go to "Azure Database for Postgres server" -> "Connection Security". Don't forget to save. At some point the cluster should be deployed in a VPN and the firewall allowed to IP address in the VPN.
 - `./azure/scripts/storage-init.sh` Create the storage for dags and logs. The printed Account Key and Storage Key will need to be added to the correct k8s_resources configuration.
 
+If you want to create a static IP for the web app:
+`./azure/scripts/loadbalancer-init.sh`
+You will then need to update the `loadBalancerIP` of the `web.service` with the created IP. If you don't do this the IP can often change.
 
 To delete: `./azure/scripts/cleanup.sh`
 
