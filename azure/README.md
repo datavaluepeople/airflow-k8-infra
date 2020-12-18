@@ -42,6 +42,7 @@ This is done by "Allow access to Azure services" to "Yes" for the postgres serve
 If you want to create a static IP for the web app:
 `./azure/scripts/loadbalancer-init.sh`
 You will then need to update the `loadBalancerIP` of the `web.service` with the created IP. If you don't do this the IP can often change.
+You will also need to update the credentials so that k8 has access to the loadbalancer. Run: `./azure/scripts/credentials-update.sh`. !! Currently this script will error you will need to run the command by hand that is printed by the script.
 
 To delete: `./azure/scripts/cleanup.sh`
 
