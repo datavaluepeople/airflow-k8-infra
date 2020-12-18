@@ -58,6 +58,8 @@ You will then be able to log in with the set password ($AIRFLOWWEBUSERPASS) and 
 If you have used a loadbalancer you can visit: http://<LOADBALANCER IP>:8080.
 Otherwise you will need to will need to get the ip: `kubectl get svc --namespace airflow-cluster1 airflowcluster-web -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`.
 
+To upload the DAGs: `./azure/scripts/upload-dags.sh`
+
 To delete: `./azure/scripts/cleanup.sh`
 
 If you need to use the variables for another command:
