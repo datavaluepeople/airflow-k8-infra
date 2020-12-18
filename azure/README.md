@@ -71,8 +71,23 @@ These files are based on the files in `airflow-stable/airflow/examples/google-gk
 
 Use the files in `k8s_resources_example` as a template.
 - copy the folder: `cp -r azure/k8s_resources_example azure/k8s_resources` (azure/k8s_resources/ is ignored)
-- file our the config files by hand
-- apply the config to the cluster: `kubectl apply -f azure/k8s_resources`. !! Needs to be run twice as namespace not found on first pass !!
+
+You will need to update these files with the correct storage account name and account key names:
+- azure/k8s_resources/secret-azure-storage.yaml
+
+You will need to update these files with the correct passwords:
+- azure/k8s_resources/secret-postgres-password.yaml
+- azure/k8s_resources/secret-redis-password.yaml
+- azure/k8s_resources/secret-fernet-key.yaml
+
+If the variables in `variables.sh` have been changed you will need to update these files with the correct storage names:
+- azure/k8s_resources/persitance-volume-dags.yaml
+- azure/k8s_resources/persitance-volume-logs.yaml
+
+### Apply
+To apply the config to the cluster: `kubectl apply -f azure/k8s_resources`. !!! Needs to be run twice as namespace not found on first pass !!!
+
+If changes are made they can be reapplied with the same command.
 
 ## Run the helm chart
 Be aware that the output of the helm install and update is not correct. See above for the correct commands.
