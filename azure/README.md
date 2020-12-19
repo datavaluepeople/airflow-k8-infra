@@ -106,9 +106,10 @@ https://docs.microsoft.com/en-us/azure/aks/concepts-storage
 https://github.com/airflow-helm/charts/blob/b721834f7f526fe5132ded39a027afffafa51b67/charts/airflow/README.md
 
 ## TODO
-Use the service broker to initial the db. This is a great solution but in beta:
-https://svc-cat.io/
-https://azure.microsoft.com/en-us/resources/videos/postg-osba-vid/
+- Use the service broker to initial the db. This is a great solution but in beta:
+  https://svc-cat.io/
+  https://azure.microsoft.com/en-us/resources/videos/postg-osba-vid/
+- Add documentation about adding a SSL and DNS for the airflow dashboard.
 
 ## Change variables.sh
 Because some of the names of azure resources have to unique across the whole of azure there is a id that is used to make all variables in `variables.sh` unique.
