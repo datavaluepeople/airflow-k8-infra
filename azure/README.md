@@ -44,6 +44,12 @@ If you want to create a static IP for the web app:
 You will then need to update the `loadBalancerIP` of the `web.service` with the created IP. If you don't do this the IP can often change.
 You will also need to update the credentials so that k8 has access to the loadbalancer. Run: `./azure/scripts/credentials-update.sh`. !! Currently this script will error you will need to run the command by hand that is printed by the script.
 
+You can then apply the secrets and configurations in for the cluster. See "Initialise secrets and ..." section.
+
+You can then apply the helm chart to get the airflow up and running. See "Run the helm chart" section.
+
+Check all the pods are running: `kubectl get pods --namespace airflow-cluster1`
+
 To delete: `./azure/scripts/cleanup.sh`
 
 If you need to use the variables for another command:
