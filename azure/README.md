@@ -28,7 +28,7 @@ IPADDRESS: the ip address that will be added to the firewall so you can access t
 DBAIRFLOWPASS: the password for the user that airflow will use to connect to the DB.
 AIRFLOWWEBUSERPASS: password for the dvpadmin user in the airflow UI.
 
-Change `variable.sh` as needed.
+Change `variable.sh` as needed. See "Change variables.sh" section for more information.
 
 Run script in order:
 - `./azure/scripts/init.sh`
@@ -111,3 +111,11 @@ https://github.com/airflow-helm/charts/blob/b721834f7f526fe5132ded39a027afffafa5
 Use the service broker to initial the db. This is a great solution but in beta:
 https://svc-cat.io/
 https://azure.microsoft.com/en-us/resources/videos/postg-osba-vid/
+
+## Change variables.sh
+Because some of the names of azure resources have to unique across the whole of azure there is a id that is used to make all variables in `variables.sh` unique.
+If you have problems with the uniqueness of the resources change the `SUFFIX` variables. You will then also have to change some variables names in other files.
+It is recommended to do a search of the previous `SUFFIX` and replace the matches with the new names.
+One gotcha is that files in the `azure/k8s_resources/` are ignored by git thus some tools for searching will not search these files.
+
+If you change the suffix you need to make sure that the `k8s_resources` are correct. See "Initialise secrets and ..." section.
