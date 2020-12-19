@@ -14,3 +14,9 @@ NODECOUNT=2
 # Registry
 CONTAINERREGISTRY=dvpairflowregistry
 CUSTOMIMAGETAG=custom-airflow-image:1.0.0
+
+# DB
+DBNAME="pgairflow$SUFFIX"
+DBADMINUSER=pgairflowadmin
+DBAIRFLOWDB=airflowcluster1
+DBAIRFLOWDBUSER=airflowcluster1
