@@ -1,7 +1,5 @@
 # Airflow deployment on Azure
 
-Under construction!
-
 The azure airflow deployment on k8 includes:
 
 ### `custom-values.yaml`
