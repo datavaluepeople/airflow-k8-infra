@@ -55,6 +55,9 @@ Check all the pods are running: `kubectl get pods --namespace airflow-cluster1`
 Once the airflow is up and running you can create the dvpadmin user: `./azure/scripts/airflow-user-init.sh`.
 You will then be able to log in with the set password ($AIRFLOWWEBUSERPASS) and the user `dvpadmin`.
 
+If you have used a loadbalancer you can visit: http://<LOADBALANCER IP>:8080.
+Otherwise you will need to will need to get the ip: `kubectl get svc --namespace airflow-cluster1 airflowcluster-web -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`.
+
 To delete: `./azure/scripts/cleanup.sh`
 
 If you need to use the variables for another command:
