@@ -1,0 +1,349 @@
+# NOTE:
+#
+# Helm Install Commands:
+#   helm install stable/airflow \
+#     --version "X.X.X" \
+#     --name "airflow-cluster1" \
+#     --namespace "airflow-cluster1" \
+#     --values ./custom-values.yaml
+#
+# Run bash commands in the Scheduler Pod: (use to: `airflow create_user`)
+#   kubectl exec \
+#     -it \
+#     --namespace airflow-cluster1 \
+#     --container airflow-scheduler \
+#     Deployment/airflow--airflow-cluster1-scheduler \
+#     /bin/bash
+#
+
+###################################
+# Airflow - Common Configs
+###################################
+airflow:
+  ## the airflow executor type to use
+  ##
+  executor: CeleryExecutor
+
+  ## environment variables for the web/scheduler/worker Pods (for airflow configs)
+  ##
+  config:
+      ## Security
+      AIRFLOW__CORE__SECURE_MODE: "True"
+      AIRFLOW__API__AUTH_BACKEND: "airflow.api.auth.backend.deny_all"
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "False"
+      AIRFLOW__WEBSERVER__RBAC: "True"
+
+      ## DAGS
+      AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "30"
+
+      ## TODO set up remote logging:
+      # https://airflow.apache.org/docs/stable/howto/write-logs.html#writing-logs-to-azure-blob-storage
+      #AIRFLOW__CORE__REMOTE_LOGGING: "True"
+      #AIRFLOW__CORE__REMOTE_BASE_LOG_FOLDER: "gs://XXXXXXXX--airflow-cluster1/airflow/logs"
+      #AIRFLOW__CORE__REMOTE_LOG_CONN_ID: "google_cloud_airflow"
+
+      ## Disable noisy "Handling signal: ttou" Gunicorn log messages
+      GUNICORN_CMD_ARGS: "--log-level WARNING"
+
+  ## extra environment variables for the web/scheduler/worker (AND flower) Pods
+  ##
+  extraEnv:
+    - name: AIRFLOW__CORE__FERNET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: airflow-cluster1-fernet-key
+          key: value
+
+  ## extra configMap volumeMounts for the web/scheduler/worker Pods
+  extraConfigmapMounts:
+    - name: airflow-cluster1-webserver-config
+      mountPath: /opt/airflow/webserver_config.py
+      configMap: airflow-cluster1-webserver-config
+      readOnly: true
+      subPath: webserver_config.py
+
+###################################
+# Airflow - Scheduler Configs
+# TODO: http://apache-airflow-docs.s3-website.eu-central-1.amazonaws.com/docs/apache-airflow/latest/howto/connection/azure.html
+###################################
+
+###################################
+# Airflow - WebUI Configs
+###################################
+web:
+  ## resource requests/limits for the airflow web Pods
+  ##
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+
+  ## the number of web Pods to run
+  ##
+  replicas: 1
+
+  ## configs for the Service of the web Pods
+  service:
+    type: LoadBalancer
+    ## If you have created a public ip using scripts then add ip here.
+    ## Otherwise an temporary IP will just be created.
+    loadBalancerIP: ""
+    ## Uncomment the annotation if you want to use a static IP
+    #annotations:
+      #service.beta.kubernetes.io/azure-load-balancer-resource-group: "airflowk8testing103"
+
+  ## extra pip packages to install in the web container
+  ##
+  extraPipPackages: []
+
+  ## TODO liveness
+
+  ## the directory in which to mount secrets on web containers
+  ##
+  secretsDir: /var/airflow/secrets
+
+  ## secret names which will be mounted as a file at `{web.secretsDir}/<secret_name>`
+  ##
+  secrets: []
+
+###################################
+# Airflow - Worker Configs
+###################################
+workers:
+  ## if the airflow workers StatefulSet should be deployed
+  ##
+  enabled: true
+
+  ## resource requests/limits for the airflow worker Pods
+  ##
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+
+  ## the number of workers Pods to run
+  ##
+  replicas: 2
+
+  ## configs for the PodDisruptionBudget of the worker StatefulSet
+  ##
+  podDisruptionBudget:
+    ## if a PodDisruptionBudget resource is created for the worker StatefulSet
+    ##
+    enabled: true
+
+    ## the maximum unavailable pods/percentage for the worker StatefulSet
+    ##
+    ## NOTE:
+    ## - prevents loosing more than 20% of current worker task slots in a voluntary
+    ##   disruption
+    ##
+    maxUnavailable: "20%"
+
+  ## configs for the HorizontalPodAutoscaler of the worker Pods
+  ##
+  autoscaling:
+    enabled: true
+    maxReplicas: 8
+    metrics:
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+  ## configs for the celery worker Pods
+  ##
+  celery:
+    ## the number of tasks each celery worker can run at a time
+    ##
+    ## NOTE:
+    ## - sets AIRFLOW__CELERY__WORKER_CONCURRENCY
+    ##
+    instances: 10
+
+    ## if we should wait for tasks to finish before SIGTERM of the celery worker
+    ##
+    gracefullTermination: true
+
+    ## how many seconds to wait for tasks to finish before SIGTERM of the celery worker
+    ##
+    ## WARNING:
+    ## - GKE cluster-autoscaler will not respect graceful termination period over 10min
+    ## NOTE:
+    ## - this gives any running tasks AT MOST 9min to complete
+    ##
+    gracefullTerminationPeriod: 540
+
+  ## how many seconds to wait after SIGTERM before SIGKILL of the celery worker
+  ##
+  terminationPeriod: 60
+
+  ## directory in which to mount secrets on worker containers
+  ##
+  secretsDir: /var/airflow/secrets
+
+  ## secret names which will be mounted as a file at `{workers.secretsDir}/<secret_name>`
+  ##
+  secrets: []
+
+###################################
+# Airflow - Flower Configs
+###################################
+flower:
+  ## if the Flower UI should be deployed
+  ##
+  enabled: false
+
+###################################
+# Airflow - Logs Configs
+###################################
+logs:
+  ## configs for the logs PVC
+  ##
+  persistence:
+    enabled: true
+    existingClaim: logs-volume
+    storageClass: azurefile
+    size: 5Gi
+
+###################################
+# Airflow - DAGs Configs
+###################################
+dags:
+  ## configs for the DAG persistant
+  ##
+  persistence:
+    enabled: true
+    existingClaim: dags-volume
+    storageClass: azurefile
+    size: 5Gi
+
+###################################
+# Database - PostgreSQL Chart
+###################################
+postgresql:
+  ## if the `stable/postgresql` chart is used
+  ##
+  enabled: false
+
+###################################
+# Database - External Database
+###################################
+externalDatabase:
+  ## the type of external database: {mysql,postgres}
+  ##
+  type: postgres
+
+  ## the host of the external database
+  ## this should match the name that was created by the scripts 
+  ## ${DBNAME}.postgres.database.azure.com
+  host: pgairflow103.postgres.database.azure.com
+
+  ## the port of the external database
+  ##
+  port: 5432
+
+  ## the database/scheme to use within the the external database
+  ## Match DBAIRFLOWDB in variables.sh
+  database: airflowcluster1
+
+  ## the user of the external database
+  ## Match DBAIRFLOWDBUSER@<host prop above> in variables.sh
+  ## @<host> is needed other wise get an error about user name is incorrect.
+  #
+  user: airflowcluster1@pgairflow103.postgres.database.azure.com
+
+  ## Properties needed for ssl conection
+  ## https://godatadriven.com/blog/deploying-apache-airflow-on-azure-kubernetes-service/
+  properties: "?sslmode=require"
+
+  ## the name of a pre-created secret containing the external database password
+  ##
+  passwordSecret: airflow-cluster1-postgres-password
+
+  ## the key within `externalDatabase.passwordSecret` containing the password string
+  ##
+  passwordSecretKey: postgres-password
+
+###################################
+# Database - Redis Chart
+###################################
+redis:
+  ## if the `stable/redis` chart is used
+  ##
+  enabled: true
+
+  ## the name of a pre-created secret containing the redis password
+  ##
+  existingSecret: "airflow-cluster1-redis-password"
+
+  ## the key in `redis.existingSecret` containing the password string
+  ##
+  existingSecretPasswordKey: "redis-password"
+
+  ## configs for redis cluster mode
+  ##
+  cluster:
+    ## if redis runs in cluster mode
+    ##
+    enabled: false
+
+    ## the number of redis slaves
+    ##
+    slaveCount: 1
+
+  ## configs for the redis master
+  ##
+  master:
+    ## resource requests/limits for the master Pod
+    ##
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+
+    ## configs for the PVC of the redis master
+    ##
+    persistence:
+      ## use a PVC to persist data
+      ##
+      enabled: false
+
+  ## configs for the redis slaves
+  ##
+  slave:
+    ## resource requests/limits for the slave Pods
+    ##
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+
+    ## configs for the PVC of the redis slaves
+    ##
+    persistence:
+      ## use a PVC to persist data
+      ##
+      enabled: false
+
+###################################
+# Kubernetes - RBAC
+###################################
+rbac:
+  ## if Kubernetes RBAC resources are created
+  ##
+  create: true
+
+###################################
+# Kubernetes - Service Account
+###################################
+serviceAccount:
+  ## if a Kubernetes ServiceAccount is created
+  ##
+  create: true
+
+  ## the name of the ServiceAccount
+  ##
+  name: "airflow"

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-volume
+  namespace: airflow-cluster1
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  volumeName: logs-volume
+  resources:
+    requests:
+      storage: 5Gi
